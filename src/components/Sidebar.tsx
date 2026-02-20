@@ -1,11 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Home, Building2, List, Bookmark, Search, Zap, Plus, Settings, ChevronRight } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
@@ -16,6 +16,15 @@ const navigation = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [quickSearch, setQuickSearch] = useState('');
+
+  const handleGlobalSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = quickSearch.trim();
+    if (q) router.push(`/companies?q=${encodeURIComponent(q)}`);
+    else router.push('/companies');
+  };
 
   return (
     <div className="flex flex-col w-64 border-r bg-background h-screen fixed left-0 top-0 z-10">
@@ -30,13 +39,16 @@ export default function Sidebar() {
       
       <div className="flex flex-col flex-1 overflow-y-auto px-3 py-4 space-y-8">
         <div className="px-3">
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <form onSubmit={handleGlobalSearch} className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
             <Input
               placeholder="Quick search..."
               className="pl-9 bg-muted/40 border-none focus-visible:ring-1 h-9 text-sm"
+              value={quickSearch}
+              onChange={(e) => setQuickSearch(e.target.value)}
+              aria-label="Quick search companies"
             />
-          </div>
+          </form>
         </div>
 
         <nav className="space-y-1">

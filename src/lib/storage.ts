@@ -83,3 +83,11 @@ export function addCompanyToList(listId: string, companyId: string) {
   list.companyIds.push(companyId);
   setLists(lists);
 }
+
+export function removeCompanyFromList(listId: string, companyId: string) {
+  const lists = getLists();
+  const list = lists.find((l) => l.id === listId);
+  if (!list) return;
+  list.companyIds = list.companyIds.filter((id) => id !== companyId);
+  setLists(lists);
+}

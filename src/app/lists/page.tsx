@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { List, Plus, MoreVertical, Share2, Download, Trash2, Pencil } from 'lucide-react';
+import Link from 'next/link';
+import { List, Plus, MoreVertical, Share2, Download, Trash2, Pencil, FileJson, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getLists, setLists, getCustomCompanies } from '@/lib/storage';
 import companiesData from '@/data/companies.json';
+import type { Company } from '@/types/company';
 
 const DEFAULT_LISTS = [
   { id: '1', name: 'Series A Fintech', companyIds: [] as string[] },
@@ -23,11 +25,13 @@ function ensureDefaultLists() {
   return current;
 }
 
+function getCompany(id: string): Company | undefined {
+  return companiesData.find((c) => c.id === id) ?? getCustomCompanies().find((c) => c.id === id);
+}
+
 function getCompanyName(id: string): string {
-  const fromJson = companiesData.find((c) => c.id === id);
-  if (fromJson) return fromJson.name;
-  const fromCustom = getCustomCompanies().find((c) => c.id === id);
-  return fromCustom?.name ?? id;
+  const c = getCompany(id);
+  return c?.name ?? id;
 }
 
 function formatUpdated(companyIds: string[]): string {
@@ -99,7 +103,7 @@ export default function ListsPage() {
     }
   };
 
-  const handleDownload = (list: { id: string; name: string; companyIds: string[] }) => {
+  const handleExportCsv = (list: { id: string; name: string; companyIds: string[] }) => {
     const headers = ['ID', 'Name'];
     const rows = list.companyIds.map((cid) => [cid, getCompanyName(cid)]);
     const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\n');
@@ -108,6 +112,19 @@ export default function ListsPage() {
     const a = document.createElement('a');
     a.href = url;
     a.download = `${list.name.replace(/\s+/g, '-')}-companies.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportJson = (list: { id: string; name: string; companyIds: string[] }) => {
+    const companies = list.companyIds.map((cid) => getCompany(cid)).filter(Boolean);
+    const payload = { listName: list.name, listId: list.id, companies, exportedAt: new Date().toISOString() };
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${list.name.replace(/\s+/g, '-')}-companies.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -153,6 +170,9 @@ export default function ListsPage() {
                 </Button>
                 {openMenuId === list.id && (
                   <div className="absolute right-0 top-full mt-1 z-20 min-w-[120px] rounded-md border bg-white py-1 shadow-lg">
+                    <Link href={`/lists/${list.id}`} className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100" onClick={() => setOpenMenuId(null)}>
+                      <ExternalLink className="h-3.5 w-3.5" /> View list
+                    </Link>
                     <button type="button" className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100" onClick={() => handleRename(list.id)}>
                       <Pencil className="h-3.5 w-3.5" /> Rename
                     </button>
@@ -170,9 +190,14 @@ export default function ListsPage() {
                 <Button size="sm" variant="ghost" onClick={() => { setEditingId(null); setEditName(''); }}>Cancel</Button>
               </div>
             ) : (
-              <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{list.name}</h3>
+              <Link href={`/lists/${list.id}`} className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors block">
+                {list.name}
+              </Link>
             )}
             <p className="text-sm text-gray-500 mt-1">{formatUpdated(list.companyIds)}</p>
+            <Link href={`/lists/${list.id}`} className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1">
+              <ExternalLink className="h-3 w-3" /> View list
+            </Link>
 
             <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
               <div className="flex -space-x-2">
@@ -187,8 +212,11 @@ export default function ListsPage() {
                 <Button variant="ghost" size="icon" className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 h-8 w-8" onClick={() => handleShare(list)} title="Copy link">
                   <Share2 className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 h-8 w-8" onClick={() => handleDownload(list)} title="Download CSV">
+                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 h-8 w-8" onClick={() => handleExportCsv(list)} title="Export CSV">
                   <Download className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 h-8 w-8" onClick={() => handleExportJson(list)} title="Export JSON">
+                  <FileJson className="h-4 w-4" />
                 </Button>
               </div>
             </div>

@@ -3,7 +3,7 @@
 import { Suspense, useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Search, ArrowUpDown, ExternalLink, Building2, Bookmark } from 'lucide-react';
+import { Search, ArrowUpDown, ExternalLink, Building2, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react';
 import companiesData from '@/data/companies.json';
 import { Company } from '@/types/company';
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,9 @@ function CompaniesPageContent() {
   const [sortConfig, setSortConfig] = useState<{ key: keyof Company; direction: 'asc' | 'desc' } | null>(null);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [customCompanies, setCustomCompanies] = useState<Company[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const PAGE_SIZE = 10;
   const allCompanies = useMemo(() => [...companiesData, ...customCompanies], [customCompanies]);
 
   useEffect(() => {
@@ -55,7 +57,7 @@ function CompaniesPageContent() {
   const stages = ['All', ...Array.from(new Set(allCompanies.map(c => c.stage)))];
 
   const filteredCompanies = useMemo(() => {
-    let result = allCompanies.filter(company => 
+    const result = allCompanies.filter(company => 
       (company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
        company.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
        company.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) &&
@@ -78,6 +80,16 @@ function CompaniesPageContent() {
 
     return result;
   }, [allCompanies, searchTerm, stageFilter, sortConfig]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCompanies.length / PAGE_SIZE));
+  const paginatedCompanies = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredCompanies.slice(start, start + PAGE_SIZE);
+  }, [filteredCompanies, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, stageFilter]);
 
   const handleToggleSave = (companyId: string) => {
     toggleSavedCompany(companyId);
@@ -157,7 +169,7 @@ function CompaniesPageContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCompanies.map((company) => (
+              {paginatedCompanies.map((company) => (
                 <TableRow key={company.id}>
                   <TableCell className="font-medium">
                     <div className="flex flex-col">
@@ -226,6 +238,37 @@ function CompaniesPageContent() {
           )}
         </CardContent>
       </Card>
+
+      {filteredCompanies.length > 0 && totalPages > 1 && (
+        <div className="flex items-center justify-between px-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredCompanies.length)} of {filteredCompanies.length}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage <= 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <span className="text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

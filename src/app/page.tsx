@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Building2, List, Bookmark, TrendingUp, Users, Zap, ArrowRight, BarChart3, Target } from 'lucide-react';
+import { Building2, List, Bookmark, Zap, ArrowRight, BarChart3, Target } from 'lucide-react';
 import companiesData from '@/data/companies.json';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -168,7 +168,7 @@ export default function Dashboard() {
   );
 }
 
-function Plus(props: any) {
+function Plus(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

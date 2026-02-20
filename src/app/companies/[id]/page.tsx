@@ -368,7 +368,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ id: st
   );
 }
 
-function TrendingUp(props: any) {
+function TrendingUp(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
