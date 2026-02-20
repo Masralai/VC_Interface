@@ -1,0 +1,57 @@
+[
+  {
+    "id": "1",
+    "name": "Linear",
+    "website": "https://linear.app",
+    "description": "The issue tracker you'll actually like using. Built for high-performance teams.",
+    "industry": "Software",
+    "stage": "Series B",
+    "location": "San Francisco, CA",
+    "tags": ["SaaS", "DevTools", "Productivity"],
+    "founded": 2019
+  },
+  {
+    "id": "2",
+    "name": "Vercel",
+    "website": "https://vercel.com",
+    "description": "The platform for frontend developers, providing the speed and reliability they need to create at the speed of inspiration.",
+    "industry": "Software",
+    "stage": "Series E",
+    "location": "San Francisco, CA",
+    "tags": ["Infrastructure", "Web Development", "Cloud"],
+    "founded": 2015
+  },
+  {
+    "id": "3",
+    "name": "Stripe",
+    "website": "https://stripe.com",
+    "description": "Financial infrastructure for the internet.",
+    "industry": "Fintech",
+    "stage": "Late Stage",
+    "location": "San Francisco, CA",
+    "tags": ["Payments", "Fintech", "Infrastructure"],
+    "founded": 2010
+  },
+  {
+    "id": "4",
+    "name": "Notion",
+    "website": "https://notion.so",
+    "description": "The all-in-one workspace for your notes, tasks, wikis, and databases.",
+    "industry": "Software",
+    "stage": "Series C",
+    "location": "San Francisco, CA",
+    "tags": ["Collaboration", "Productivity", "SaaS"],
+    "founded": 2013
+  },
+  {
+    "id": "5",
+    "name": "Figma",
+    "website": "https://figma.com",
+    "description": "The collaborative interface design tool.",
+    "industry": "Design",
+    "stage": "Late Stage",
+    "location": "San Francisco, CA",
+    "tags": ["Design", "Collaboration", "Graphics"],
+    "founded": 2012
+  }
+]
